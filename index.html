@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VitalFit - BMI & Health Dashboard</title>
+  <meta name="description" content="A modern, interactive BMI calculator and health metrics dashboard with historical progress tracking over time.">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.78-8.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </div>
+        <div>
+          <h1>VitalFit</h1>
+          <p>Health & BMI Intelligence Dashboard</p>
+        </div>
+      </div>
+
+      <div class="unit-toggle">
+        <button id="btnMetric" class="unit-btn active">Metric (kg / cm)</button>
+        <button id="btnImperial" class="unit-btn">Imperial (lbs / in)</button>
+      </div>
+    </header>
+
+    <main class="dashboard-grid">
+      <section class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          Body Metrics Input
+        </h2>
+
+        <form id="bmiForm">
+          <div class="form-group">
+            <label>Gender</label>
+            <div class="gender-select">
+              <button type="button" id="btnMale" class="gender-btn active">
+                <span>👨</span> Male
+              </button>
+              <button type="button" id="btnFemale" class="gender-btn">
+                <span>👩</span> Female
+              </button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="height">Height</label>
+              <div class="input-wrapper">
+                <input type="number" id="height" value="175" step="0.1" required min="50" max="250">
+                <span id="heightUnitLabel" class="unit-suffix">cm</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="weight">Weight</label>
+              <div class="input-wrapper">
+                <input type="number" id="weight" value="74.2" step="0.1" required min="20" max="300">
+                <span id="weightUnitLabel" class="unit-suffix">kg</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="age">Age</label>
+              <input type="number" id="age" value="24" required min="10" max="120">
+            </div>
+
+            <div class="form-group">
+              <label for="activity">Activity Level</label>
+              <select id="activity">
+                <option value="1.2">Sedentary (Little/no exercise)</option>
+                <option value="1.375" selected>Lightly Active (1-3 days/wk)</option>
+                <option value="1.55">Moderately Active (3-5 days/wk)</option>
+                <option value="1.725">Very Active (6-7 days/wk)</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">Calculate & Save Record</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          Health Analysis Summary
+        </h2>
+
+        <div class="bmi-score-card">
+          <p style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">Body Mass Index</p>
+          <div id="bmiValue" class="bmi-val">24.2</div>
+          <span id="bmiCategory" class="badge badge-normal">Normal Weight</span>
+
+          <div class="gauge-container">
+            <div class="gauge-bar">
+              <div id="gaugeNeedle" class="gauge-needle"></div>
+            </div>
+            <div class="gauge-labels">
+              <span>15 (Under)</span>
+              <span>18.5 (Normal)</span>
+              <span>25 (Over)</span>
+              <span>30+ (Obese)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-item">
+            <div class="title">Ideal Weight Range</div>
+            <div id="idealWeight" class="value">56.7 - 76.3 kg</div>
+          </div>
+
+          <div class="metric-item">
+            <div class="title">Basal Metabolic Rate</div>
+            <div id="bmrValue" class="value">1725 kcal</div>
+          </div>
+
+          <div class="metric-item">
+            <div class="title">Daily Energy Needed</div>
+            <div id="tdeeValue" class="value">2372 kcal</div>
+          </div>
+
+          <div class="metric-item">
+            <div class="title">Daily Water Goal</div>
+            <div id="waterValue" class="value">2.6 L/day</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <section class="history-section">
+      <div class="card">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          Progress Over Time
+        </h2>
+        <div class="chart-container">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h2 class="card-title" style="margin-bottom: 0;">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            History Log
+          </h2>
+          <div>
+            <button id="btnExportCSV" style="background: none; border: none; color: var(--accent-cyan); font-size: 0.8rem; cursor: pointer; margin-right: 0.5rem; font-weight: 600;">Export CSV</button>
+            <button id="btnClearHistory" style="background: none; border: none; color: var(--accent-rose); font-size: 0.8rem; cursor: pointer; font-weight: 600;">Clear</button>
+          </div>
+        </div>
+
+        <div id="historyList" class="history-list"></div>
+      </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2026 VitalFit Health Dashboard</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
