@@ -270,12 +270,12 @@ document.addEventListener('DOMContentLoaded', () => {
         datasets: [{
           label: 'BMI Trend Over Time',
           data: bmiValues,
-          borderColor: '#6366f1',
-          backgroundColor: 'rgba(99, 102, 241, 0.15)',
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.18)',
           borderWidth: 3,
           fill: true,
           tension: 0.35,
-          pointBackgroundColor: '#06b6d4',
+          pointBackgroundColor: '#34d399',
           pointRadius: 5,
           pointHoverRadius: 7
         }]
@@ -288,21 +288,21 @@ document.addEventListener('DOMContentLoaded', () => {
           tooltip: {
             mode: 'index',
             intersect: false,
-            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            backgroundColor: 'rgba(10, 31, 24, 0.95)',
             titleColor: '#fff',
-            bodyColor: '#cbd5e1',
-            borderColor: 'rgba(255,255,255,0.1)',
+            bodyColor: '#a7f3d0',
+            borderColor: 'rgba(52, 211, 153, 0.2)',
             borderWidth: 1
           }
         },
         scales: {
           x: {
             grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#64748b', font: { size: 11 } }
+            ticks: { color: '#6ee7b7', font: { size: 11 } }
           },
           y: {
             grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#64748b', font: { size: 11 } }
+            ticks: { color: '#6ee7b7', font: { size: 11 } }
           }
         }
       }
