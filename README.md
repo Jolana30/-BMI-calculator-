@@ -1,4 +1,4 @@
-# BMI Calculator 💙
+# Vital-Fit — Smart BMI Calculator 💙
 
 A beautiful, mobile-first BMI Calculator app inspired by modern health & wellness UI design.
 
