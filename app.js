@@ -1,75 +1,98 @@
 document.addEventListener('DOMContentLoaded', () => {
-  let unitSystem = 'metric';
+  // ===== STATE =====
+  let unitSystem = 'metric'; // 'metric' or 'imperial'
   let gender = 'male';
-  let historyData = [];
-  let trendChart = null;
 
-  const btnMetric = document.getElementById('btnMetric');
-  const btnImperial = document.getElementById('btnImperial');
-  const heightUnitLabel = document.getElementById('heightUnitLabel');
-  const weightUnitLabel = document.getElementById('weightUnitLabel');
-  
-  const heightInput = document.getElementById('height');
-  const weightInput = document.getElementById('weight');
-  const ageInput = document.getElementById('age');
-  const activitySelect = document.getElementById('activity');
+  // ===== DOM REFS =====
   const btnMale = document.getElementById('btnMale');
   const btnFemale = document.getElementById('btnFemale');
-  const bmiForm = document.getElementById('bmiForm');
+  const heightSlider = document.getElementById('heightSlider');
+  const weightSlider = document.getElementById('weightSlider');
+  const ageSlider = document.getElementById('ageSlider');
+  const heightValueEl = document.getElementById('heightValue');
+  const weightValueEl = document.getElementById('weightValue');
+  const ageValueEl = document.getElementById('ageValue');
+  const heightUnitEl = document.getElementById('heightUnit');
+  const weightUnitEl = document.getElementById('weightUnit');
+  const heightMaxLabel = document.getElementById('heightMaxLabel');
+  const weightMaxLabel = document.getElementById('weightMaxLabel');
+  const btnCalculate = document.getElementById('btnCalculate');
+  const btnBack = document.getElementById('btnBack');
+  const btnToggleUnits = document.getElementById('btnToggleUnits');
+  const unitLabel = document.getElementById('unitLabel');
 
-  const bmiValueEl = document.getElementById('bmiValue');
-  const bmiCategoryEl = document.getElementById('bmiCategory');
-  const gaugeNeedle = document.getElementById('gaugeNeedle');
-  const idealWeightEl = document.getElementById('idealWeight');
-  const bmrValueEl = document.getElementById('bmrValue');
-  const tdeeValueEl = document.getElementById('tdeeValue');
-  const waterValueEl = document.getElementById('waterValue');
+  const screenInput = document.getElementById('screenInput');
+  const screenResults = document.getElementById('screenResults');
 
-  const historyListEl = document.getElementById('historyList');
-  const btnExportCSV = document.getElementById('btnExportCSV');
-  const btnClearHistory = document.getElementById('btnClearHistory');
+  const resultBMI = document.getElementById('resultBMI');
+  const resultCategory = document.getElementById('resultCategory');
+  const gaugeIndicator = document.getElementById('gaugeIndicator');
+  const insightCard = document.getElementById('insightCard');
+  const insightTitle = document.getElementById('insightTitle');
+  const insightText = document.getElementById('insightText');
+  const statIdealWeight = document.getElementById('statIdealWeight');
+  const statBMR = document.getElementById('statBMR');
+  const statTDEE = document.getElementById('statTDEE');
+  const statWater = document.getElementById('statWater');
 
-  initHistory();
-  initChart();
-  calculateAndRender();
+  const tabItems = document.querySelectorAll('.tab-item');
 
-  btnMetric.addEventListener('click', () => setUnitSystem('metric'));
-  btnImperial.addEventListener('click', () => setUnitSystem('imperial'));
+  // Legend items
+  const legendItems = document.querySelectorAll('.legend-item');
 
+  // ===== INIT =====
+  updateSliderDisplays();
+  updateSliderFills();
+
+  // ===== EVENTS =====
+
+  // Gender selection
   btnMale.addEventListener('click', () => setGender('male'));
   btnFemale.addEventListener('click', () => setGender('female'));
 
-  bmiForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    calculateAndRender(true);
+  // Sliders
+  heightSlider.addEventListener('input', () => {
+    heightValueEl.textContent = Math.round(parseFloat(heightSlider.value));
+    updateSliderFill(heightSlider);
   });
 
-  if (btnExportCSV) btnExportCSV.addEventListener('click', exportCSV);
-  if (btnClearHistory) btnClearHistory.addEventListener('click', clearHistory);
+  weightSlider.addEventListener('input', () => {
+    const val = parseFloat(weightSlider.value);
+    weightValueEl.textContent = val % 1 === 0 ? val.toFixed(0) : val.toFixed(1);
+    updateSliderFill(weightSlider);
+  });
 
-  function setUnitSystem(system) {
-    if (unitSystem === system) return;
-    unitSystem = system;
+  ageSlider.addEventListener('input', () => {
+    ageValueEl.textContent = ageSlider.value;
+    updateSliderFill(ageSlider);
+  });
 
-    if (system === 'metric') {
-      btnMetric.classList.add('active');
-      btnImperial.classList.remove('active');
-      heightUnitLabel.textContent = 'cm';
-      weightUnitLabel.textContent = 'kg';
-      
-      if (heightInput.value) heightInput.value = Math.round(parseFloat(heightInput.value) * 2.54);
-      if (weightInput.value) weightInput.value = (parseFloat(weightInput.value) * 0.453592).toFixed(1);
-    } else {
-      btnImperial.classList.add('active');
-      btnMetric.classList.remove('active');
-      heightUnitLabel.textContent = 'in';
-      weightUnitLabel.textContent = 'lbs';
+  // Calculate button
+  btnCalculate.addEventListener('click', () => {
+    calculateBMI();
+    showScreen('screenResults');
+  });
 
-      if (heightInput.value) heightInput.value = Math.round(parseFloat(heightInput.value) / 2.54);
-      if (weightInput.value) weightInput.value = (parseFloat(weightInput.value) / 0.453592).toFixed(1);
-    }
-    calculateAndRender();
-  }
+  // Back button
+  btnBack.addEventListener('click', () => {
+    showScreen('screenInput');
+  });
+
+  // Tab navigation
+  tabItems.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const targetScreen = tab.getAttribute('data-screen');
+      if (targetScreen === 'screenResults') {
+        calculateBMI();
+      }
+      showScreen(targetScreen);
+    });
+  });
+
+  // Unit toggle
+  btnToggleUnits.addEventListener('click', toggleUnits);
+
+  // ===== FUNCTIONS =====
 
   function setGender(g) {
     gender = g;
@@ -80,240 +103,213 @@ document.addEventListener('DOMContentLoaded', () => {
       btnFemale.classList.add('active');
       btnMale.classList.remove('active');
     }
-    calculateAndRender();
   }
 
-  function calculateAndRender(saveToHistory = false) {
-    const rawHeight = parseFloat(heightInput.value);
-    const rawWeight = parseFloat(weightInput.value);
-    const age = parseInt(ageInput.value) || 25;
-    const activityMultiplier = parseFloat(activitySelect.value) || 1.375;
+  function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
 
-    if (!rawHeight || !rawWeight || rawHeight <= 0 || rawWeight <= 0) return;
+    tabItems.forEach(tab => {
+      tab.classList.toggle('active', tab.getAttribute('data-screen') === screenId);
+    });
+  }
 
-    let heightCm = unitSystem === 'metric' ? rawHeight : rawHeight * 2.54;
-    let weightKg = unitSystem === 'metric' ? rawWeight : rawWeight * 0.453592;
+  function toggleUnits() {
+    const currentHeight = parseFloat(heightSlider.value);
+    const currentWeight = parseFloat(weightSlider.value);
 
+    if (unitSystem === 'metric') {
+      unitSystem = 'imperial';
+      unitLabel.textContent = 'lbs/in';
+      heightUnitEl.textContent = 'in';
+      weightUnitEl.textContent = 'lbs';
+
+      // Convert slider ranges and values
+      heightSlider.min = 39;
+      heightSlider.max = 87;
+      heightSlider.step = 1;
+      heightSlider.value = Math.round(currentHeight / 2.54);
+
+      weightSlider.min = 66;
+      weightSlider.max = 440;
+      weightSlider.step = 1;
+      weightSlider.value = Math.round(currentWeight / 0.453592);
+
+      heightMaxLabel.textContent = '87 in';
+      weightMaxLabel.textContent = '440 lbs';
+    } else {
+      unitSystem = 'metric';
+      unitLabel.textContent = 'kg/cm';
+      heightUnitEl.textContent = 'cm';
+      weightUnitEl.textContent = 'kg';
+
+      heightSlider.min = 100;
+      heightSlider.max = 220;
+      heightSlider.step = 1;
+      heightSlider.value = Math.round(currentHeight * 2.54);
+
+      weightSlider.min = 30;
+      weightSlider.max = 200;
+      weightSlider.step = 0.5;
+      weightSlider.value = (currentWeight * 0.453592).toFixed(1);
+
+      heightMaxLabel.textContent = '220 cm';
+      weightMaxLabel.textContent = '200 kg';
+    }
+
+    updateSliderDisplays();
+    updateSliderFills();
+  }
+
+  function updateSliderDisplays() {
+    heightValueEl.textContent = Math.round(parseFloat(heightSlider.value));
+    const wv = parseFloat(weightSlider.value);
+    weightValueEl.textContent = wv % 1 === 0 ? wv.toFixed(0) : wv.toFixed(1);
+    ageValueEl.textContent = ageSlider.value;
+  }
+
+  function updateSliderFills() {
+    updateSliderFill(heightSlider);
+    updateSliderFill(weightSlider);
+    updateSliderFill(ageSlider);
+  }
+
+  function updateSliderFill(slider) {
+    const min = parseFloat(slider.min);
+    const max = parseFloat(slider.max);
+    const val = parseFloat(slider.value);
+    const pct = ((val - min) / (max - min)) * 100;
+    slider.style.background = `linear-gradient(90deg, #42B9E8 0%, #7DD3F5 ${pct}%, #E2EEF5 ${pct}%, #E2EEF5 100%)`;
+  }
+
+  function calculateBMI() {
+    const rawHeight = parseFloat(heightSlider.value);
+    const rawWeight = parseFloat(weightSlider.value);
+    const age = parseInt(ageSlider.value);
+
+    // Convert to metric for calculations
+    const heightCm = unitSystem === 'metric' ? rawHeight : rawHeight * 2.54;
+    const weightKg = unitSystem === 'metric' ? rawWeight : rawWeight * 0.453592;
     const heightM = heightCm / 100;
+
     const bmi = weightKg / (heightM * heightM);
 
-    let category = '';
-    let badgeClass = '';
+    // Determine category
+    let category, insightTitleText, insightTextContent, color, cardClass;
 
     if (bmi < 18.5) {
       category = 'Underweight';
-      badgeClass = 'badge-underweight';
-    } else if (bmi < 25.0) {
-      category = 'Normal Weight';
-      badgeClass = 'badge-normal';
-    } else if (bmi < 30.0) {
+      color = '#5BC0EB';
+      cardClass = 'underweight';
+      insightTitleText = 'Underweight';
+      insightTextContent = 'Your BMI suggests you may be underweight. Consider consulting a healthcare provider about nutrition and a balanced diet to reach a healthier weight.';
+    } else if (bmi < 25) {
+      category = 'Normal';
+      color = '#4ECDC4';
+      cardClass = '';
+      insightTitleText = 'Healthy Weight';
+      insightTextContent = "Your BMI indicates that you're within the healthy weight range and don't need to lose weight. Keep maintaining your balanced lifestyle!";
+    } else if (bmi < 30) {
       category = 'Overweight';
-      badgeClass = 'badge-overweight';
+      color = '#FFB347';
+      cardClass = 'overweight';
+      insightTitleText = 'Overweight';
+      insightTextContent = 'Your BMI indicates you are slightly above the healthy range. Regular physical activity and mindful eating can help you get back on track.';
     } else {
       category = 'Obese';
-      badgeClass = 'badge-obese';
+      color = '#FF6B6B';
+      cardClass = 'obese';
+      insightTitleText = 'Obesity';
+      insightTextContent = 'Your BMI falls in the obesity range. We strongly recommend consulting with a healthcare professional for personalized guidance.';
     }
 
-    bmiValueEl.textContent = bmi.toFixed(1);
-    bmiCategoryEl.textContent = category;
-    bmiCategoryEl.className = `badge ${badgeClass}`;
+    // Update result display
+    resultBMI.textContent = bmi.toFixed(1);
+    resultCategory.textContent = category;
+    resultCategory.style.color = color;
 
-    let gaugePercent = ((bmi - 15) / (35 - 15)) * 100;
-    if (gaugePercent < 0) gaugePercent = 0;
-    if (gaugePercent > 100) gaugePercent = 100;
-    gaugeNeedle.style.left = `${gaugePercent}%`;
+    // Update gauge indicator position
+    updateGaugeIndicator(bmi);
 
+    // Update legend active state
+    updateLegendActive(category);
+
+    // Update insight card
+    insightCard.className = `insight-card ${cardClass}`;
+    insightTitle.textContent = insightTitleText;
+    insightText.textContent = insightTextContent;
+
+    // Calculate additional stats
     const minIdealKg = 18.5 * (heightM * heightM);
     const maxIdealKg = 24.9 * (heightM * heightM);
 
     if (unitSystem === 'metric') {
-      idealWeightEl.textContent = `${minIdealKg.toFixed(1)} - ${maxIdealKg.toFixed(1)} kg`;
+      statIdealWeight.textContent = `${Math.round(minIdealKg)} - ${Math.round(maxIdealKg)} kg`;
     } else {
-      const minIdealLbs = minIdealKg / 0.453592;
-      const maxIdealLbs = maxIdealKg / 0.453592;
-      idealWeightEl.textContent = `${minIdealLbs.toFixed(1)} - ${maxIdealLbs.toFixed(1)} lbs`;
+      const minLbs = Math.round(minIdealKg / 0.453592);
+      const maxLbs = Math.round(maxIdealKg / 0.453592);
+      statIdealWeight.textContent = `${minLbs} - ${maxLbs} lbs`;
     }
 
+    // BMR (Mifflin-St Jeor)
     let bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age);
-    bmr += (gender === 'male') ? 5 : -161;
-    bmrValueEl.textContent = `${Math.round(bmr)} kcal`;
+    bmr += gender === 'male' ? 5 : -161;
+    statBMR.textContent = `${Math.round(bmr)} kcal`;
 
-    const tdee = bmr * activityMultiplier;
-    tdeeValueEl.textContent = `${Math.round(tdee)} kcal`;
+    // TDEE (lightly active multiplier)
+    const tdee = bmr * 1.375;
+    statTDEE.textContent = `${Math.round(tdee)} kcal`;
 
-    const waterLiters = (weightKg * 0.035).toFixed(1);
-    waterValueEl.textContent = `${waterLiters} L/day`;
+    // Water intake
+    const water = (weightKg * 0.035).toFixed(1);
+    statWater.textContent = `${water} L/day`;
+  }
 
-    if (saveToHistory) {
-      const entry = {
-        id: Date.now(),
-        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-        timestamp: Date.now(),
-        weight: unitSystem === 'metric' ? `${weightKg.toFixed(1)} kg` : `${(weightKg / 0.453592).toFixed(1)} lbs`,
-        weightKg: weightKg,
-        bmi: bmi.toFixed(1),
-        category: category
-      };
-      historyData.unshift(entry);
-      saveHistoryData();
-      renderHistory();
-      updateChart();
+  function updateGaugeIndicator(bmi) {
+    // The gauge arc goes from bottom-left (~210°) clockwise to bottom-right (~330°)
+    // Spanning about 300° total. BMI range: 15 to 40.
+    const minBMI = 15;
+    const maxBMI = 40;
+    let ratio = (bmi - minBMI) / (maxBMI - minBMI);
+    ratio = Math.max(0, Math.min(1, ratio));
+
+    // Arc: starts at 210° (bottom-left), sweeps 300° clockwise to 150° (bottom-right)
+    // In standard math coords (0° = right, counter-clockwise positive)
+    // But SVG is y-down, so we use clockwise
+    const startAngleDeg = 210; // bottom-left start
+    const arcSpanDeg = 300;    // total arc
+    const angleDeg = startAngleDeg - (ratio * arcSpanDeg); // counter-clockwise in math coords
+    const angleRad = (angleDeg * Math.PI) / 180;
+
+    const cx = 100 + 85 * Math.cos(angleRad);
+    const cy = 100 - 85 * Math.sin(angleRad);
+
+    gaugeIndicator.setAttribute('cx', cx.toFixed(1));
+    gaugeIndicator.setAttribute('cy', cy.toFixed(1));
+
+    // Update indicator color based on category
+    let color;
+    if (bmi < 18.5) color = '#5BC0EB';
+    else if (bmi < 25) color = '#4ECDC4';
+    else if (bmi < 30) color = '#FFB347';
+    else color = '#FF6B6B';
+
+    gaugeIndicator.setAttribute('fill', color);
+  }
+
+  function updateLegendActive(category) {
+    legendItems.forEach(item => item.classList.remove('active-legend'));
+
+    const categoryMap = {
+      'Underweight': 0,
+      'Normal': 1,
+      'Overweight': 2,
+      'Obese': 3
+    };
+
+    const idx = categoryMap[category];
+    if (idx !== undefined && legendItems[idx]) {
+      legendItems[idx].classList.add('active-legend');
     }
-  }
-
-  function initHistory() {
-    const stored = localStorage.getItem('vitalfit_bmi_history');
-    if (stored) {
-      try {
-        historyData = JSON.parse(stored);
-      } catch (e) {
-        historyData = [];
-      }
-    }
-
-    if (!historyData || historyData.length === 0) {
-      historyData = [
-        { id: 1, date: 'Jul 29, 2024', timestamp: 1722262193000, weight: '88.5 kg', weightKg: 88.5, bmi: '28.9', category: 'Overweight' },
-        { id: 2, date: 'Nov 12, 2024', timestamp: 1731415200000, weight: '85.2 kg', weightKg: 85.2, bmi: '27.8', category: 'Overweight' },
-        { id: 3, date: 'Mar 05, 2025', timestamp: 1741178400000, weight: '81.0 kg', weightKg: 81.0, bmi: '26.4', category: 'Overweight' },
-        { id: 4, date: 'Oct 18, 2025', timestamp: 1760791200000, weight: '76.4 kg', weightKg: 76.4, bmi: '24.9', category: 'Normal Weight' },
-        { id: 5, date: 'Aug 05, 2026', timestamp: 1785933600000, weight: '74.2 kg', weightKg: 74.2, bmi: '24.2', category: 'Normal Weight' }
-      ];
-      saveHistoryData();
-    }
-    renderHistory();
-  }
-
-  function saveHistoryData() {
-    localStorage.setItem('vitalfit_bmi_history', JSON.stringify(historyData));
-  }
-
-  function renderHistory() {
-    if (!historyListEl) return;
-    historyListEl.innerHTML = '';
-
-    if (historyData.length === 0) {
-      historyListEl.innerHTML = '<p style="color: var(--text-dim); text-align: center; padding: 1rem;">No history records yet.</p>';
-      return;
-    }
-
-    historyData.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'history-item';
-      div.innerHTML = `
-        <div>
-          <div class="history-date">${item.date}</div>
-          <div class="history-weight">${item.weight}</div>
-        </div>
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <div class="history-bmi">${item.bmi} BMI</div>
-          <button class="delete-btn" data-id="${item.id}" title="Delete Record">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-          </button>
-        </div>
-      `;
-      historyListEl.appendChild(div);
-    });
-
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = parseInt(e.currentTarget.getAttribute('data-id'));
-        historyData = historyData.filter(h => h.id !== id);
-        saveHistoryData();
-        renderHistory();
-        updateChart();
-      });
-    });
-  }
-
-  function clearHistory() {
-    if (confirm('Clear all recorded health history?')) {
-      historyData = [];
-      saveHistoryData();
-      renderHistory();
-      updateChart();
-    }
-  }
-
-  function exportCSV() {
-    if (historyData.length === 0) {
-      alert('No history records to export.');
-      return;
-    }
-    let csvContent = 'data:text/csv;charset=utf-8,Date,Weight,BMI,Category\n';
-    historyData.forEach(r => {
-      csvContent += `"${r.date}","${r.weight}","${r.bmi}","${r.category}"\n`;
-    });
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'VitalFit_BMI_History.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  function initChart() {
-    const ctx = document.getElementById('trendChart');
-    if (!ctx) return;
-
-    const sorted = [...historyData].reverse();
-    const labels = sorted.map(d => d.date);
-    const bmiValues = sorted.map(d => parseFloat(d.bmi));
-
-    trendChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'BMI Trend Over Time',
-          data: bmiValues,
-          borderColor: '#10b981',
-          backgroundColor: 'rgba(16, 185, 129, 0.18)',
-          borderWidth: 3,
-          fill: true,
-          tension: 0.35,
-          pointBackgroundColor: '#34d399',
-          pointRadius: 5,
-          pointHoverRadius: 7
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            mode: 'index',
-            intersect: false,
-            backgroundColor: 'rgba(10, 31, 24, 0.95)',
-            titleColor: '#fff',
-            bodyColor: '#a7f3d0',
-            borderColor: 'rgba(52, 211, 153, 0.2)',
-            borderWidth: 1
-          }
-        },
-        scales: {
-          x: {
-            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#6ee7b7', font: { size: 11 } }
-          },
-          y: {
-            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#6ee7b7', font: { size: 11 } }
-          }
-        }
-      }
-    });
-  }
-
-  function updateChart() {
-    if (!trendChart) return;
-    const sorted = [...historyData].reverse();
-    trendChart.data.labels = sorted.map(d => d.date);
-    trendChart.data.datasets[0].data = sorted.map(d => parseFloat(d.bmi));
-    trendChart.update();
   }
 });

@@ -3,183 +3,327 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VitalFit - BMI & Health Dashboard</title>
-  <meta name="description" content="A modern, interactive BMI calculator and health metrics dashboard with historical progress tracking over time.">
+  <title>BMI Calculator - Smart Health Tracker</title>
+  <meta name="description" content="A beautiful, interactive BMI calculator app with smart health insights, visual body analysis, and personalized recommendations.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-  <div class="container">
-    <header>
-      <div class="brand">
-        <div class="brand-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.78-8.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+  <div class="app-shell">
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+      <div class="nav-left">
+        <div class="nav-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.78-8.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
         </div>
-        <div>
-          <h1>VitalFit</h1>
-          <p>Health & BMI Intelligence Dashboard</p>
+        <span class="nav-title">BMI Calculator</span>
+      </div>
+      <div class="nav-right">
+        <button id="btnToggleUnits" class="nav-unit-btn" title="Toggle Units">
+          <span id="unitLabel">kg/cm</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Screen Container -->
+    <div class="screen-container">
+
+      <!-- ===== SCREEN 1: Input Screen ===== -->
+      <div id="screenInput" class="screen active">
+        <!-- Gender Selection -->
+        <div class="section-label">Select Gender</div>
+        <div class="gender-cards">
+          <button id="btnMale" class="gender-card active" type="button">
+            <div class="gender-illustration male-illustration">
+              <svg viewBox="0 0 120 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Head -->
+                <circle cx="60" cy="35" r="22" fill="#5BB8E8" opacity="0.15"/>
+                <circle cx="60" cy="35" r="18" fill="#FFD4A8"/>
+                <!-- Hair -->
+                <path d="M42 30 Q42 14 60 14 Q78 14 78 30 Q78 24 70 22 Q62 20 54 22 Q46 24 42 30Z" fill="#4A3728"/>
+                <!-- Eyes -->
+                <circle cx="53" cy="33" r="2" fill="#333"/>
+                <circle cx="67" cy="33" r="2" fill="#333"/>
+                <!-- Smile -->
+                <path d="M54 40 Q60 46 66 40" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- Body / Shirt -->
+                <path d="M38 58 Q38 52 60 52 Q82 52 82 58 L84 110 Q84 116 60 116 Q36 116 36 110 Z" fill="#42B9E8"/>
+                <!-- Arms -->
+                <path d="M38 62 L22 90 L28 92 L42 70" fill="#42B9E8"/>
+                <path d="M82 62 L98 90 L92 92 L78 70" fill="#42B9E8"/>
+                <!-- Hands -->
+                <circle cx="25" cy="92" r="6" fill="#FFD4A8"/>
+                <circle cx="95" cy="92" r="6" fill="#FFD4A8"/>
+                <!-- Pants -->
+                <path d="M40 110 L38 165 L50 165 L55 125 L65 125 L70 165 L82 165 L80 110 Z" fill="#3A5BA0"/>
+                <!-- Shoes -->
+                <ellipse cx="44" cy="170" rx="10" ry="5" fill="#333"/>
+                <ellipse cx="76" cy="170" rx="10" ry="5" fill="#333"/>
+              </svg>
+            </div>
+            <span class="gender-label">Male</span>
+          </button>
+
+          <button id="btnFemale" class="gender-card" type="button">
+            <div class="gender-illustration female-illustration">
+              <svg viewBox="0 0 120 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Head -->
+                <circle cx="60" cy="35" r="22" fill="#E88BD3" opacity="0.15"/>
+                <circle cx="60" cy="35" r="18" fill="#FFD4A8"/>
+                <!-- Hair -->
+                <path d="M38 34 Q36 12 60 12 Q84 12 82 34 L82 28 Q80 16 60 16 Q40 16 38 28Z" fill="#4A3728"/>
+                <path d="M38 34 L34 60 Q36 62 40 56 L38 34Z" fill="#4A3728"/>
+                <path d="M82 34 L86 60 Q84 62 80 56 L82 34Z" fill="#4A3728"/>
+                <!-- Eyes -->
+                <circle cx="53" cy="33" r="2" fill="#333"/>
+                <circle cx="67" cy="33" r="2" fill="#333"/>
+                <!-- Eyelashes -->
+                <path d="M50 31 L48 29" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+                <path d="M70 31 L72 29" stroke="#333" stroke-width="1" stroke-linecap="round"/>
+                <!-- Smile -->
+                <path d="M54 40 Q60 46 66 40" fill="none" stroke="#333" stroke-width="1.5" stroke-linecap="round"/>
+                <!-- Body / Dress -->
+                <path d="M42 58 Q42 52 60 52 Q78 52 78 58 L82 116 Q82 120 60 120 Q38 120 38 116 Z" fill="#E88BD3"/>
+                <!-- Skirt flare -->
+                <path d="M38 100 L30 145 Q30 148 60 148 Q90 148 90 145 L82 100" fill="#E88BD3"/>
+                <!-- Arms -->
+                <path d="M42 62 L28 88 L33 90 L44 68" fill="#E88BD3"/>
+                <path d="M78 62 L92 88 L87 90 L76 68" fill="#E88BD3"/>
+                <!-- Hands -->
+                <circle cx="30" cy="90" r="5.5" fill="#FFD4A8"/>
+                <circle cx="90" cy="90" r="5.5" fill="#FFD4A8"/>
+                <!-- Legs -->
+                <line x1="48" y1="148" x2="46" y2="170" stroke="#FFD4A8" stroke-width="6" stroke-linecap="round"/>
+                <line x1="72" y1="148" x2="74" y2="170" stroke="#FFD4A8" stroke-width="6" stroke-linecap="round"/>
+                <!-- Shoes -->
+                <ellipse cx="46" cy="174" rx="8" ry="4" fill="#E88BD3"/>
+                <ellipse cx="74" cy="174" rx="8" ry="4" fill="#E88BD3"/>
+              </svg>
+            </div>
+            <span class="gender-label">Female</span>
+          </button>
         </div>
+
+        <!-- Height Slider -->
+        <div class="slider-section">
+          <div class="slider-header">
+            <span class="slider-label">Height</span>
+            <div class="slider-value-display">
+              <span id="heightValue" class="slider-value">170</span>
+              <span id="heightUnit" class="slider-unit">cm</span>
+            </div>
+          </div>
+          <div class="slider-track-wrapper">
+            <input type="range" id="heightSlider" class="custom-slider" min="100" max="220" value="170" step="1">
+            <div class="slider-range-labels">
+              <span>100</span>
+              <span id="heightMaxLabel">220 cm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weight Slider -->
+        <div class="slider-section">
+          <div class="slider-header">
+            <span class="slider-label">Weight</span>
+            <div class="slider-value-display">
+              <span id="weightValue" class="slider-value">68</span>
+              <span id="weightUnit" class="slider-unit">kg</span>
+            </div>
+          </div>
+          <div class="slider-track-wrapper">
+            <input type="range" id="weightSlider" class="custom-slider" min="30" max="200" value="68" step="0.5">
+            <div class="slider-range-labels">
+              <span>30</span>
+              <span id="weightMaxLabel">200 kg</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Age Slider -->
+        <div class="slider-section">
+          <div class="slider-header">
+            <span class="slider-label">Age</span>
+            <div class="slider-value-display">
+              <span id="ageValue" class="slider-value">24</span>
+              <span class="slider-unit">yrs</span>
+            </div>
+          </div>
+          <div class="slider-track-wrapper">
+            <input type="range" id="ageSlider" class="custom-slider" min="10" max="80" value="24" step="1">
+            <div class="slider-range-labels">
+              <span>10</span>
+              <span>80 yrs</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculate Button -->
+        <button id="btnCalculate" class="btn-calculate">
+          <span>Calculate BMI</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
       </div>
 
-      <div class="unit-toggle">
-        <button id="btnMetric" class="unit-btn active">Metric (kg / cm)</button>
-        <button id="btnImperial" class="unit-btn">Imperial (lbs / in)</button>
-      </div>
-    </header>
-
-    <main class="dashboard-grid">
-      <section class="card">
-        <h2 class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      <!-- ===== SCREEN 2: Results Screen ===== -->
+      <div id="screenResults" class="screen">
+        <button id="btnBack" class="btn-back" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"/>
+            <polyline points="12 19 5 12 12 5"/>
           </svg>
-          Body Metrics Input
-        </h2>
+          <span>Back</span>
+        </button>
 
-        <form id="bmiForm">
-          <div class="form-group">
-            <label>Gender</label>
-            <div class="gender-select">
-              <button type="button" id="btnMale" class="gender-btn active">
-                <span>👨</span> Male
-              </button>
-              <button type="button" id="btnFemale" class="gender-btn">
-                <span>👩</span> Female
-              </button>
-            </div>
-          </div>
+        <div class="result-header">Your Results</div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label for="height">Height</label>
-              <div class="input-wrapper">
-                <input type="number" id="height" value="175" step="0.1" required min="50" max="250">
-                <span id="heightUnitLabel" class="unit-suffix">cm</span>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="weight">Weight</label>
-              <div class="input-wrapper">
-                <input type="number" id="weight" value="74.2" step="0.1" required min="20" max="300">
-                <span id="weightUnitLabel" class="unit-suffix">kg</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="age">Age</label>
-              <input type="number" id="age" value="24" required min="10" max="120">
-            </div>
-
-            <div class="form-group">
-              <label for="activity">Activity Level</label>
-              <select id="activity">
-                <option value="1.2">Sedentary (Little/no exercise)</option>
-                <option value="1.375" selected>Lightly Active (1-3 days/wk)</option>
-                <option value="1.55">Moderately Active (3-5 days/wk)</option>
-                <option value="1.725">Very Active (6-7 days/wk)</option>
-              </select>
-            </div>
-          </div>
-
-          <button type="submit" class="btn-primary">Calculate & Save Record</button>
-        </form>
-      </section>
-
-      <section class="card">
-        <h2 class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-          </svg>
-          Health Analysis Summary
-        </h2>
-
-        <div class="bmi-score-card">
-          <p style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">Body Mass Index</p>
-          <div id="bmiValue" class="bmi-val">24.2</div>
-          <span id="bmiCategory" class="badge badge-normal">Normal Weight</span>
-
-          <div class="gauge-container">
-            <div class="gauge-bar">
-              <div id="gaugeNeedle" class="gauge-needle"></div>
-            </div>
-            <div class="gauge-labels">
-              <span>15 (Under)</span>
-              <span>18.5 (Normal)</span>
-              <span>25 (Over)</span>
-              <span>30+ (Obese)</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="metrics-grid">
-          <div class="metric-item">
-            <div class="title">Ideal Weight Range</div>
-            <div id="idealWeight" class="value">56.7 - 76.3 kg</div>
-          </div>
-
-          <div class="metric-item">
-            <div class="title">Basal Metabolic Rate</div>
-            <div id="bmrValue" class="value">1725 kcal</div>
-          </div>
-
-          <div class="metric-item">
-            <div class="title">Daily Energy Needed</div>
-            <div id="tdeeValue" class="value">2372 kcal</div>
-          </div>
-
-          <div class="metric-item">
-            <div class="title">Daily Water Goal</div>
-            <div id="waterValue" class="value">2.6 L/day</div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <section class="history-section">
-      <div class="card">
-        <h2 class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="20" x2="18" y2="10"></line>
-            <line x1="12" y1="20" x2="12" y2="4"></line>
-            <line x1="6" y1="20" x2="6" y2="14"></line>
-          </svg>
-          Progress Over Time
-        </h2>
-        <div class="chart-container">
-          <canvas id="trendChart"></canvas>
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h2 class="card-title" style="margin-bottom: 0;">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
+        <!-- Circular BMI Gauge -->
+        <div class="circular-gauge-wrapper">
+          <div class="circular-gauge">
+            <svg viewBox="0 0 200 200" class="gauge-svg">
+              <defs>
+                <filter id="indicatorShadow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feDropShadow dx="0" dy="1" stdDeviation="3" flood-opacity="0.25"/>
+                </filter>
+              </defs>
+              <!-- Background track -->
+              <path d="M 30 150 A 85 85 0 1 1 170 150" fill="none" stroke="#E8F4FD" stroke-width="14" stroke-linecap="round"/>
+              <!-- Underweight: BMI 15-18.5 = 14% of range -->
+              <path d="M 30 150 A 85 85 0 0 1 20.4 78.5" fill="none" stroke="#5BC0EB" stroke-width="14" stroke-linecap="round"/>
+              <!-- Normal: BMI 18.5-25 = 26% of range -->
+              <path d="M 20.4 78.5 A 85 85 0 0 1 55.8 22.6" fill="none" stroke="#4ECDC4" stroke-width="14" stroke-linecap="round"/>
+              <!-- Overweight: BMI 25-30 = 20% of range -->
+              <path d="M 55.8 22.6 A 85 85 0 0 1 130 17.2" fill="none" stroke="#FFB347" stroke-width="14" stroke-linecap="round"/>
+              <!-- Obese: BMI 30-40 = 40% of range -->
+              <path d="M 130 17.2 A 85 85 0 0 1 170 150" fill="none" stroke="#FF6B6B" stroke-width="14" stroke-linecap="round"/>
+              <!-- Indicator dot -->
+              <circle id="gaugeIndicator" cx="55" cy="22" r="10" fill="#4ECDC4" stroke="white" stroke-width="3" filter="url(#indicatorShadow)" class="gauge-indicator"/>
             </svg>
-            History Log
-          </h2>
-          <div>
-            <button id="btnExportCSV" style="background: none; border: none; color: var(--accent-cyan); font-size: 0.8rem; cursor: pointer; margin-right: 0.5rem; font-weight: 600;">Export CSV</button>
-            <button id="btnClearHistory" style="background: none; border: none; color: var(--accent-rose); font-size: 0.8rem; cursor: pointer; font-weight: 600;">Clear</button>
+            <div class="gauge-center-text">
+              <div id="resultBMI" class="gauge-bmi-value">23.5</div>
+              <div id="resultCategory" class="gauge-bmi-label">Normal</div>
+            </div>
+          </div>
+          <!-- Gauge Legend -->
+          <div class="gauge-legend">
+            <div class="legend-item">
+              <span class="legend-dot" style="background:#5BC0EB;"></span>
+              <span>Underweight</span>
+              <span class="legend-range">&lt; 18.5</span>
+            </div>
+            <div class="legend-item active-legend" id="legendNormal">
+              <span class="legend-dot" style="background:#4ECDC4;"></span>
+              <span>Healthy Weight</span>
+              <span class="legend-range">18.5 - 24.9</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot" style="background:#FFB347;"></span>
+              <span>Overweight</span>
+              <span class="legend-range">25 - 29.9</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot" style="background:#FF6B6B;"></span>
+              <span>Obesity</span>
+              <span class="legend-range">&ge; 30</span>
+            </div>
           </div>
         </div>
 
-        <div id="historyList" class="history-list"></div>
-      </div>
-    </section>
+        <!-- Health Insight Card -->
+        <div class="insight-card" id="insightCard">
+          <div class="insight-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </div>
+          <div class="insight-content">
+            <div class="insight-title" id="insightTitle">Healthy Weight</div>
+            <div class="insight-text" id="insightText">Your BMI indicates that you're within the healthy weight range and don't need to lose weight.</div>
+          </div>
+        </div>
 
-    <footer>
-      <p>&copy; 2026 VitalFit Health Dashboard</p>
-    </footer>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 20V10M12 20V4M6 20v-6"/>
+              </svg>
+            </div>
+            <div class="stat-label">Ideal Weight</div>
+            <div id="statIdealWeight" class="stat-value">56 - 76 kg</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon fire-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22c-4.97 0-9-2.69-9-6 0-4 4.5-8 6-11 1.5 3 6 7 6 11 0 3.31-1.34 6-3 6z"/>
+              </svg>
+            </div>
+            <div class="stat-label">BMR</div>
+            <div id="statBMR" class="stat-value">1650 kcal</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon energy-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <div class="stat-label">Daily Energy</div>
+            <div id="statTDEE" class="stat-value">2270 kcal</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon water-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+              </svg>
+            </div>
+            <div class="stat-label">Water Intake</div>
+            <div id="statWater" class="stat-value">2.4 L/day</div>
+          </div>
+        </div>
+
+        <!-- Learn More Button -->
+        <a href="https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight" target="_blank" rel="noopener" class="btn-learn-more">
+          <span>Learn more</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Bottom Tab Bar -->
+    <nav class="tab-bar">
+      <button class="tab-item active" data-screen="screenInput">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span>Calculator</span>
+      </button>
+      <button class="tab-item" data-screen="screenResults">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <span>Results</span>
+      </button>
+    </nav>
   </div>
 
   <script src="app.js"></script>
